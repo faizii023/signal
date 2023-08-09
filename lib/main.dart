@@ -1,93 +1,52 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_vector_icons/flutter_vector_icons.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:signal/screens/home/UserList.dart';
+import 'package:flutter_redux/flutter_redux.dart';
+import 'package:redux/redux.dart';
+import 'package:redux_thunk/redux_thunk.dart';
+import 'package:signal/screens/auth/Login.dart';
+import 'package:signal/screens/auth/onboarding_screen.dart';
+import 'package:signal/store/reducer.dart';
 
-void main() {
-  runApp(const MyApp());
+// Initial state/store values
+final store = Store<ChatState>(allReducers,
+    initialState: ChatState(
+        errorMessage: "",
+        messages: [],
+        activeUser: "",
+        activeRoom: "",
+        allUser: [],
+        isAuthenticated: false,
+        user: null,
+        logLoading: false,
+        regLoading: false),
+    middleware: [thunkMiddleware]);
+
+Future<void> main() async {
+  runApp(MyApp(store: store));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final Store<ChatState> store;
 
-  // This widget is the root of your application.
+  MyApp({super.key, required this.store});
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        scaffoldBackgroundColor: Colors.white,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          title: Text(
-            "Signal",
-            style: GoogleFonts.ubuntu(
-              color: Colors.black,
-              fontSize: 20,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-          actions: <Widget>[
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(
-                Icons.search,
-                size: 30,
-                color: Colors.black,
-              ),
-            ),
-            IconButton(
-              onPressed: () {},
-              icon: const Icon(
-                MaterialCommunityIcons.dots_vertical,
-                size: 30,
-                color: Colors.black,
-              ),
-            )
-          ],
+    return StoreProvider(
+      store: store,
+      child: MaterialApp(
+        title: 'Flutter Signal App',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        body:const UserList(),
-        floatingActionButton: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            FloatingActionButton(
-              onPressed: () {},
-              heroTag: null,
-              backgroundColor: Colors.white,
-              child: const Icon(Icons.photo),
-            ),
-            const SizedBox(height: 10),
-            FloatingActionButton(
-              onPressed: () {},
-              backgroundColor: Colors.blueAccent,
-              child: const Icon(
-                Icons.edit,
-                color: Colors.white,
-              ),
-            ),
-          ],
-        ),
+        initialRoute: "onboarding",
+        routes: {
+          "onboarding": (BuildContext context) => Onboarding(),
+          "login": (BuildContext context) => Login(),
+        },
+        // home: const SafeArea(
+        //   child: Scaffold(),
+        // ),
       ),
     );
   }
